@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://technehub-labs.github.io/dea-catalog-actors/schemas/entity.schema.json",
+  "title": "Actor Catalog Entry",
+  "description": "Schema for entries in technehub-labs/dea-catalog-actors. Mirrors technehub-labs/dea-metamodel/schemas/entities/actor.json.",
+  "type": "object",
+  "required": ["id", "name", "type", "version", "actor_type"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*:[a-z0-9-]+$" },
+    "type": { "type": "string", "const": "Actor" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "description": { "type": "string", "maxLength": 2000 },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "actor_type": { "type": "string", "enum": ["human", "team", "system", "ai-agent", "hybrid"] },
+    "scope": { "type": "string", "enum": ["individual", "team", "departmental", "enterprise", "ecosystem"] },
+    "owner": { "type": "string" },
+    "capabilities": { "type": "array", "items": { "type": "string" } },
+    "processes_performed": { "type": "array", "items": { "type": "string" } },
+    "links": {
+      "type": "object",
+      "properties": {
+        "stakeholder_ref": { "type": "string" },
+        "digital_identity_ref": { "type": "string" }
+      }
+    },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "metadata": { "type": "object" }
+  }
+}
