@@ -5,7 +5,7 @@ This directory will hold Actor catalog entries once Phase 2 content population b
 Each entry should be a YAML file following the schema in `../../schemas/entity.schema.json`. Example shape:
 
 ```yaml
-id: dea:actor-payroll-specialist
+id: actors:actor-payroll-specialist-xxxxxx
 type: Actor
 name: Payroll Specialist
 actor_type: human
