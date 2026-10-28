@@ -1,0 +1,21 @@
+id: actors:actor-architect-example-rwpe9z
+name: Example Enterprise Architect
+type: Actor
+actor_type: human
+version: 1.0.0
+lifecycle_status: active
+description: >
+  Seed human Actor record for the first Phase-2 admission (CR-ACT-07).
+  A person accountable for the structural integrity of the enterprise
+  architecture: owns cross-catalog consistency, adjudicates entity
+  boundary questions (Actor vs Stakeholder), and ratifies change
+  requests through the CR governance chain.
+scope: enterprise
+capabilities:
+  - Cross-catalog consistency stewardship
+  - Entity boundary adjudication
+  - Change request ratification
+audit.author: Emmanuel A. Otchere
+audit.reviewed_by: Emmanuel A. Otchere
+metadata:
+  seed_record: "true"

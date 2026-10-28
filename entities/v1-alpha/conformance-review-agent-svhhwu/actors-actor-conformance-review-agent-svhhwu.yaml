@@ -1,0 +1,22 @@
+id: actors:actor-conformance-review-agent-svhhwu
+name: Conformance Review Agent
+type: Actor
+actor_type: ai-agent
+version: 1.0.0
+lifecycle_status: active
+description: >
+  Seed ai-agent Actor record for the first Phase-2 admission (CR-ACT-07).
+  An agent that performs repo reconnaissance and defect review on
+  behalf of the accountable owner: it inspects gates, reproduces
+  failures, and drafts change requests. Agency is recorded in the CR
+  chain per the cardinal rule; it is not a named authorship role in
+  any published artifact.
+scope: enterprise
+capabilities:
+  - Repository reconnaissance
+  - Gate defect reproduction
+  - Change request drafting
+audit.author: Emmanuel A. Otchere
+audit.reviewed_by: Emmanuel A. Otchere
+metadata:
+  seed_record: "true"

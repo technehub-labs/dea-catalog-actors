@@ -1,16 +1,26 @@
 # Entity System Registry (CR-ACT-02; per the Conformance Standard CS-011)
 # Per-repo lightweight slice of the General Entity System. Data-driven
-# configuration for the entity-system gate. This repo has 0 entity
-# records at the time of CR landing; the registry is declared generically
-# (no profiles) so the gate is vacuously CONFORMANT (per the Stage 5
-# staging).
+# configuration for the entity-system gate.
+#
+# CR-ACT-07: the Actor profile is registered ahead of the first admission
+# so ES-002 can resolve `type: Actor` records (the gate fires on any
+# non-empty type not in `profiles` while profiles is empty).
 
 # ES-002: Entity Contract (the common envelope + type-specific profiles)
 envelope:
   file_globs:
     - "entities/**/*.yaml"
   type_field: type
-  profiles: {}
+  profiles:
+    Actor:
+      required_fields:
+        - id
+        - type
+        - name
+        - version
+        - lifecycle_status
+        - actor_type
+        - description
 
 # ES-001: Identity
 # Canonical = the org-wide form this repo's own IDM gate enforces

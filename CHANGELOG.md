@@ -6,6 +6,9 @@ repository is governed by change requests (`change-requests/`).
 
 ## [Unreleased]
 
+### CR-ACT-07: First Phase-2 Admission (Seed Actor Records, Actor Profile, Early-Exit Drop)
+
+First content admission — the catalog's population phase begins. Three seed Actor records land at the flat layout (`human`: Example Enterprise Architect; `system`: Architecture CI Pipeline; `ai-agent`: Conformance Review Agent) with content-derived hash6 ids, per-record READMEs (IDM-007), and the schema-required envelope plus `lifecycle_status: active` (index-schema enum). The `Actor` envelope profile is registered in the entity-system registry (ES-002 was structurally unresolvable while `profiles: {}`), and `audit.author` is registered in the authorship registry per cardinal-rules R1 (records use the flat `audit.author:` key shape so the gate actually parses them). The `ci.yml` empty-tree early-exit is dropped; schema validation runs on every entry. The admission also exposed and fixed a regenerator bug the empty tree masked: `infer_state` probed `{id}.yaml` (ids contain `:`, never a legal filename), misclassifying canonical subtrees as `state: candidate` — the canonical filename is the id with `:` → `-` (IDM-005). All gates pass against real records for the first time: IDM-001..007 CONFORMANT (3 records), ES gate CONFORMANT, AUT gate CONFORMANT, index `state: canonical` x3, CST 16/16. Carrier: `change-requests/CR-ACT-07-first-admission-seed-actors.md`.
 ### CR status close: CR-ACT-03..06
 
 Per the standing landing discipline (CR-ACT-03 §2.4): all four carriers close to `Merged` with landing evidence — merged as PR #7 (`a3708ba`). `CATALOG.yaml` regenerated: `open_change_requests` 4 → 0, and `repository` restored to the canonical `origin` URL form (`...dea-catalog-actors.git`) the CI regenerator step sets, which the first post-merge run flagged as drift (the local clone used the extensionless URL).
