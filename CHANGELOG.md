@@ -6,6 +6,10 @@ repository is governed by change requests (`change-requests/`).
 
 ## [Unreleased]
 
+### CR status close: CR-ACT-03..06
+
+Per the standing landing discipline (CR-ACT-03 §2.4): all four carriers close to `Merged` with landing evidence — merged as PR #7 (`a3708ba`). `CATALOG.yaml` regenerated: `open_change_requests` 4 → 0, and `repository` restored to the canonical `origin` URL form (`...dea-catalog-actors.git`) the CI regenerator step sets, which the first post-merge run flagged as drift (the local clone used the extensionless URL).
+
 ### CR-ACT-03..06: Recon 2026-10-28 defect-closure stack
 
 Four CRs closing the defects found in the 2026-10-28 recon (same classes as the stakeholders repo's CR-CATALOG-STRUCT-08..11, landed 2026-10-27):

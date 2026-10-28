@@ -4,7 +4,7 @@
 |-------|-------|
 | **CR** | CR-ACT-06 |
 | **Title** | CI Hygiene (Pinned Dependencies, Unified Python, Job Timeouts) |
-| **Status** | Proposed (this PR) |
+| **Status** | Merged (PR #7) |
 | **Layer** | L3 (Actors Catalog) |
 | **Owner** | Emmanuel A. Otchere |
 | **Date** | 2026-10-28 |

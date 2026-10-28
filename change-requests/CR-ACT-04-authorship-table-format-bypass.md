@@ -4,7 +4,7 @@
 |-------|-------|
 | **CR** | CR-ACT-04 |
 | **Title** | Authorship Gate Table-Format Bypass (AUT-001 Coverage Hole) |
-| **Status** | Proposed (this PR) |
+| **Status** | Merged (PR #7) |
 | **Layer** | L3 (Actors Catalog) |
 | **Owner** | Emmanuel A. Otchere |
 | **Date** | 2026-10-28 |

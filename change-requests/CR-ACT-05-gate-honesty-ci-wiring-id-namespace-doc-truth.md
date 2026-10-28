@@ -4,7 +4,7 @@
 |-------|-------|
 | **CR** | CR-ACT-05 |
 | **Title** | Gate Honesty, CI Test Wiring, Id-Namespace Alignment, Doc Truth |
-| **Status** | Proposed (this PR) |
+| **Status** | Merged (PR #7) |
 | **Layer** | L3 (Actors Catalog) |
 | **Owner** | Emmanuel A. Otchere |
 | **Date** | 2026-10-28 |
