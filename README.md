@@ -1,4 +1,4 @@
-# Actors
+# OpenDEA Actors (dea-catalog-actors)
 
 > Performers of enterprise processes — humans, teams, systems, or AI agents.
 
