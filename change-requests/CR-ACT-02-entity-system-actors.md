@@ -4,7 +4,7 @@
 |-------|-------|
 | **CR** | CR-ACT-02 |
 | **Title** | Entity System Stage 5-6 (Catalog Adoption + Institutionalisation) - Actors Slice |
-| **Status** | Proposed (this PR) |
+| **Status** | Merged (PR #6) |
 | **Layer** | L1 (Actors Catalog) |
 | **Depends on** | CR-BP-121..125 (the 6-stage institutionalisation in dea-catalog-processes) |
 | **Author** | Emmanuel A. Otchere |

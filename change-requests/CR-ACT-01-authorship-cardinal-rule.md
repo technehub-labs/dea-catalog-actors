@@ -4,7 +4,7 @@
 |-------|-------|
 | **CR** | CR-ACT-01 |
 | **Title** | Authorship Cardinal Rule (R1, R2) - Org-Wide Propagation Slice (dea-catalog-actors) |
-| **Status** | Accepted (per user directive 2026-10-13) |
+| **Status** | Merged (PR #5) |
 | **Layer** | L1 (Actors Catalog) |
 | **Depends on** | CR-BP-118 (org-wide authorship cardinal rule, main authority) |
 | **Companion to** | CR-DEA-BC-34 (BC slice), CR-BO-03 (BO slice), CR-OU-03 (OU slice), CR-ECF-009 (MF slice), CR-MM-04 (metamodel slice), CR-AR-FMWK-02 (architecture-framework slice) |

@@ -2,9 +2,9 @@
 
 > Performers of enterprise processes — humans, teams, systems, or AI agents.
 
-**Layer:** L1 · **Entity:** `AC` · **Metamodel:** [v3.0.0-alpha](https://github.com/technehub-labs/dea-metamodel)
+**Layer:** L3 · **Entity:** `AC` · **Metamodel:** [v0.2.1](https://github.com/technehub-labs/dea-metamodel) (OpenDEAM v0.2.1, ADR-0002)
 
-[![View in Metamodel Explorer](https://img.shields.io/badge/Metamodel%20Explorer-View%20Entity-2C3E50?style=shield)](https://technehub-labs.github.io/metamodel/?entity=Actor)
+[![View in Metamodel Explorer](https://img.shields.io/badge/Metamodel%20Explorer-View%20Entity-2C3E50?style=shield)](https://technehub-labs.github.io/metamodel/?entity=AC)
 
 ## Status
 
@@ -16,22 +16,30 @@ This is a **scaffold** repository — created during the Process taxonomy rollou
 |-------|-------|
 | Entity ID | `dea:entity-actor` |
 | Class Alias | `AC` |
-| Layer | L1 |
-| Metamodel Version | v3.0.0-alpha |
+| Layer | L3 |
+| Building Block | L3-work-organization |
+| Metamodel Version | v0.2.1 |
 
 ## Catalog Structure
 
 ```
 dea-catalog-actors/
-├── metamodel-pointer.yaml   ← entity mapping (do not edit manually)
+├── metamodel-pointer.yaml     ← entity mapping (do not edit manually)
+├── CATALOG.yaml               ← generated catalog index (do not edit manually)
 ├── entities/
-│   └── v1-alpha/          ← catalog entries go here
+│   └── v1-alpha/              ← catalog entries go here (Phase 2)
 │       └── README.md
-├── schemas/                ← JSON Schema for this entity type
+├── schemas/                   ← JSON Schema for this entity type
 │   └── entity.schema.json
+├── reconciliation/           ← gate registries (authorship, entity system)
+├── scripts/                   ← conformance gates + catalog regenerator
 └── .github/
     └── workflows/
-        └── ci.yml         ← validates entries against schema
+        ├── ci.yml             ← validates entries against schema (early-exit while empty)
+        ├── catalog-conformance.yml
+        ├── validate-authorship.yml
+        ├── validate-entity-system.yml
+        └── validate-allocation.yml
 ```
 
 ## Boundary

@@ -163,11 +163,19 @@ def _iter_files(glob: str):
             yield p
 
 
+# Table-format CR metadata rows (CR-CATALOG-STRUCT-09): ``| **Owner** | X |``.
+# One compiled pattern per markdown field path; keyed on the literal path so
+# adjacent table keys (``| **CR** |``, ``| **Companion to** |``) cannot match.
+_TABLE_ROW_RE_CACHE: dict = {}
+
+
 def _extract_value(line: str, field_path: str) -> str | None:
     """Extract the value of a registered field from a single line.
 
     Field shapes:
-      - ``**Owner**: <value>``  -> markdown CR metadata
+      - ``**Owner**: <value>``  -> line-format markdown CR metadata
+      - ``| **Owner** | <value> |`` -> table-format markdown CR metadata
+        (CR-CATALOG-STRUCT-09; anchored row, exact key match)
       - ``audit.author: <value>`` -> YAML (any leading whitespace)
       - CITATION.cff uses YAML too; same shape as audit.author.
     """
@@ -177,6 +185,16 @@ def _extract_value(line: str, field_path: str) -> str | None:
         prefix = f"{key}:"
         if stripped.startswith(prefix):
             return stripped[len(prefix):].strip()
+        pat = _TABLE_ROW_RE_CACHE.get(field_path)
+        if pat is None:
+            pat = re.compile(
+                r"^\|\s*" + re.escape(field_path) + r"\s*\|\s*(.+?)\s*\|$"
+            )
+            _TABLE_ROW_RE_CACHE[field_path] = pat
+        m = pat.match(stripped)
+        if m:
+            return m.group(1)
+        return None
     else:
         # YAML shape: "audit.author: <value>" (leading whitespace allowed)
         key = field_path
@@ -205,6 +223,9 @@ def evaluate(strict: bool = False) -> dict:
     findings: list[dict] = []
     summary = {"AUT-001": 0, "AUT-002": 0, "AUT-003": 0}
 
+    # scanned[rel] tracks which registered fields each in-scope file
+    # exposed, for the AUT-002 presence rule (CR-CATALOG-STRUCT-09).
+    scanned: dict[str, dict] = {}
     for fld in fields:
         glob = fld["file_glob"]
         path = fld["path"]
@@ -213,17 +234,34 @@ def evaluate(strict: bool = False) -> dict:
             if _is_preserved(rel):
                 continue
             text = fpath.read_text()
+            rec = scanned.setdefault(rel, {"fields": set(), "field": path})
             # For YAML-style fields with a `[]` list path, scan every line
             if "[]" in path:
                 hits = _extract_citation_value(text, path)
                 for lineno, value in hits:
+                    rec["fields"].add(path)
                     _check_value(rel, lineno, path, value, allowlist, denylist, findings, summary, fld)
             else:
                 for lineno, line in enumerate(text.splitlines(), 1):
                     value = _extract_value(line, path)
                     if value is None:
                         continue
+                    rec["fields"].add(path)
                     _check_value(rel, lineno, path, value, allowlist, denylist, findings, summary, fld)
+    # AUT-002 (presence rule): a scanned CR that exposes no registered
+    # authorship field at all (neither shape) fires once per file -- the
+    # CR header block is present by definition, so the field is missing.
+    for rel in sorted(scanned):
+        if not scanned[rel]["fields"]:
+            findings.append({
+                "rule": "AUT-002",
+                "file": rel,
+                "line": 1,
+                "field": scanned[rel]["field"],
+                "value": "",
+                "kind": "metadata",
+            })
+            summary["AUT-002"] += 1
 
     blocking = [f for f in findings if f["rule"] in ("AUT-001", "AUT-002")]
     advisory = [f for f in findings if f["rule"] == "AUT-003"]

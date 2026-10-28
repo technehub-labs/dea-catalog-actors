@@ -9,16 +9,16 @@ on:
 jobs:
   entity-system:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: "3.12"
       - name: Install dependencies
-        run: pip install pyyaml
+        run: pip install pyyaml==6.0.3
       - name: Run Entity System gate (--strict)
         run: python3 scripts/check_entity_system.py --strict
-        continue-on-error: true
       - name: Run Entity System gate (--self-test)
         run: python3 scripts/check_entity_system.py --self-test

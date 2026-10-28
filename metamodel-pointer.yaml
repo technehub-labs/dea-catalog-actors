@@ -2,7 +2,23 @@
 # Auto-generated from OpenDEAM v0.2.1 (dea-architecture-framework, ADR-0002).
 # Do not edit manually — allocation changes go through the root model
 # (structural: ADR + minor bump; additive: PR + patch bump).
+#
+# Top-level metadata (id, name, abbreviation, version, status,
+# metamodel_version, owner, license, repository, homepage,
+# conformance_status) is read by the catalog regenerator
+# (tools/regenerate_catalog.py). The nested blocks below
+# (metamodel:, catalog:, description:, links:) are the allocation
+# declaration pinned by validate-allocation.yml
+# (dea-architecture-framework@v0.2.1).
 id: dea:catalog-actors
+name: Actors
+abbreviation: AC
+owner: TechNeHub Labs
+license: Apache-2.0
+repository: https://github.com/technehub-labs/dea-catalog-actors
+homepage: https://github.com/technehub-labs/dea-catalog-actors
+metamodel_version: "^0.2.1"
+conformance_status: draft
 
 metamodel:
   version: v0.2.1
@@ -11,14 +27,21 @@ metamodel:
   layer: L3
   building_block: L3-work-organization
   viewer_url: "https://technehub-labs.github.io/metamodel/?entity=AC"
+  description: |
+    A performer of enterprise processes — human, team, system, or AI agent.
 
 catalog:
   name: Actor
   repo: technehub-labs/dea-catalog-actors
   status: scaffold
 
+# Catalog-level description (read by the regenerator as
+# CATALOG.yaml: catalog.description). Distinct from
+# metamodel.description above, which is the entity-class description
+# read by the OpenDEAM allocation validator
+# (dea-architecture-framework/scripts/validate_consumer.py).
 description: |
-  A performer of enterprise processes — human, team, system, or AI agent.
+  Performers of enterprise processes — humans, teams, systems, or AI agents.
 
 links:
   metamodel_repo: https://github.com/technehub-labs/dea-metamodel
