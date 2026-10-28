@@ -2,9 +2,9 @@ catalog:
   abbreviation: AC
   counts:
     candidates: 0
-    canonical: 0
-    entities: 0
-    open_change_requests: 0
+    canonical: 3
+    entities: 3
+    open_change_requests: 1
     research_files: 0
     retired: 0
   cross_cutting:
@@ -16,12 +16,54 @@ catalog:
   description: 'Performers of enterprise processes — humans, teams, systems, or AI agents.
 
     '
-  entities: []
+  entities:
+  - candidate_count: 0
+    canonical_count: 1
+    id: actors:actor-architect-example-rwpe9z
+    last_modified: '2026-10-28'
+    lifecycle_status: active
+    path: entities/v1-alpha/architect-example-rwpe9z/actors-actor-architect-example-rwpe9z.yaml
+    research_count: 0
+    retired_count: 0
+    state: canonical
+    type: Actor
+    version: 1.0.0
+  - candidate_count: 0
+    canonical_count: 1
+    id: actors:actor-architecture-ci-pipeline-cz8zmp
+    last_modified: '2026-10-28'
+    lifecycle_status: active
+    path: entities/v1-alpha/architecture-ci-pipeline-cz8zmp/actors-actor-architecture-ci-pipeline-cz8zmp.yaml
+    research_count: 0
+    retired_count: 0
+    state: canonical
+    type: Actor
+    version: 1.0.0
+  - candidate_count: 0
+    canonical_count: 1
+    id: actors:actor-conformance-review-agent-svhhwu
+    last_modified: '2026-10-28'
+    lifecycle_status: active
+    path: entities/v1-alpha/conformance-review-agent-svhhwu/actors-actor-conformance-review-agent-svhhwu.yaml
+    research_count: 0
+    retired_count: 0
+    state: canonical
+    type: Actor
+    version: 1.0.0
   id: dea:catalog-actors
   metamodel_version: ^0.2.1
   name: Actors
   owner: TechNeHub Labs
   repository: https://github.com/technehub-labs/dea-catalog-actors.git
-  research_registers: []
+  research_registers:
+  - entity_id: actors:actor-architect-example-rwpe9z
+    files: []
+    path: entities/v1-alpha/architect-example-rwpe9z/research/
+  - entity_id: actors:actor-architecture-ci-pipeline-cz8zmp
+    files: []
+    path: entities/v1-alpha/architecture-ci-pipeline-cz8zmp/research/
+  - entity_id: actors:actor-conformance-review-agent-svhhwu
+    files: []
+    path: entities/v1-alpha/conformance-review-agent-svhhwu/research/
   status: draft
   version: 0.0.0

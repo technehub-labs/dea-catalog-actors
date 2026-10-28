@@ -1,0 +1,21 @@
+id: actors:actor-architecture-ci-pipeline-cz8zmp
+name: Architecture CI Pipeline
+type: Actor
+actor_type: system
+version: 1.0.0
+lifecycle_status: active
+description: >
+  Seed system Actor record for the first Phase-2 admission (CR-ACT-07).
+  The GitHub Actions automation that performs enterprise processes: it
+  runs the catalog conformance suite, the id-system gates, the
+  authorship cardinal-rule gate, and the OpenDEAM allocation pin on
+  every push and pull request.
+scope: enterprise
+capabilities:
+  - Catalog conformance execution
+  - Id-system coherence enforcement
+  - Authorship gate enforcement
+audit.author: Emmanuel A. Otchere
+audit.reviewed_by: Emmanuel A. Otchere
+metadata:
+  seed_record: "true"

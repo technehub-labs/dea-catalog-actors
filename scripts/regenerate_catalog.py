@@ -304,9 +304,14 @@ def infer_state(subtree: Path, canonical: dict[str, Any] | None) -> tuple[str, s
     that should be recorded in the entities[] entry (None if no canonical file).
     """
     entity_id = entity_id_from_subtree(subtree)
-    canonical_file = subtree / f"{entity_id}.yaml"
+    # Flat layout (IDM-005): the canonical file is the id with ':'
+    # normalized to '-' (e.g. `actors:actor-<slug>-<hash6>` ->
+    # `actors-actor-<slug>-<hash6>.yaml`); an id can never be a literal
+    # filename because it contains ':'.
+    canonical_name = entity_id.replace(":", "-") + ".yaml"
+    canonical_file = subtree / canonical_name
     canonical_path = (
-        f"entities/v1-alpha/{entity_id}/{entity_id}.yaml"
+        f"entities/v1-alpha/{subtree.name}/{canonical_name}"
         if canonical_file.exists()
         else None
     )
