@@ -209,3 +209,97 @@ def test_iter_files_does_not_escape_into_metaframework():
         assert "CR-AT-ROOT.md" not in walked, (
             f"glob escaped its prefix; walked: {walked}"
         )
+
+
+# --- CR-CATALOG-STRUCT-09: table-format metadata + presence rule ------------
+
+
+def _make_tree(tmp_path, cr_body: str) -> Path:
+    """Build a minimal repo tree with one CR and a copy of the live registry."""
+    (tmp_path / "change-requests").mkdir()
+    (tmp_path / "reconciliation").mkdir()
+    (tmp_path / "change-requests" / "CR-TEST.md").write_text(cr_body)
+    (tmp_path / "reconciliation" / "authorship-fields.yaml").write_text(
+        REGISTRY.read_text()
+    )
+    return tmp_path
+
+
+def _evaluate_on(tmp_path, monkeypatch) -> dict:
+    monkeypatch.setattr(MOD, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(
+        MOD, "REGISTRY_PATH", tmp_path / "reconciliation" / "authorship-fields.yaml"
+    )
+    return MOD.evaluate(strict=False)
+
+
+def test_extract_value_table_format_row():
+    """Table-format rows extract for both markdown field paths."""
+    assert MOD._extract_value("| **Author** | Emmanuel A. Otchere |", "**Author**") == (
+        "Emmanuel A. Otchere"
+    )
+    assert MOD._extract_value("| **Owner** | TechNeHub Labs |", "**Owner**") == (
+        "TechNeHub Labs"
+    )
+    # Line format still works.
+    assert MOD._extract_value("**Owner**: Emmanuel A. Otchere", "**Owner**") == (
+        "Emmanuel A. Otchere"
+    )
+
+
+def test_extract_value_table_format_adjacent_key_no_match():
+    """Adjacent table keys must not yield a value for the registered field."""
+    assert MOD._extract_value("| **CR** | CR-CATALOG-STRUCT-06 |", "**Author**") is None
+    assert MOD._extract_value(
+        "| **Companion to** | CR-DEA-BC-34 (BC slice) |", "**Owner**"
+    ) is None
+
+
+def test_table_format_denylist_fires_aut001(tmp_path, monkeypatch):
+    """The bypass probe: a table-format `Coder (for eaojnr)` Author must
+    fire AUT-001 (before CR-CATALOG-STRUCT-09 it was invisible)."""
+    _make_tree(
+        tmp_path,
+        "# CR-TEST: probe\n\n"
+        "| Field | Value |\n|---|---|\n"
+        "| **Status** | Proposed |\n"
+        "| **Author** | Coder (for eaojnr) |\n"
+        "| **Owner** | Hermes |\n",
+    )
+    r = _evaluate_on(tmp_path, monkeypatch)
+    assert r["verdict"] == "NON-CONFORMANT"
+    rules = {(f["rule"], f["field"]) for f in r["blocking"]}
+    assert ("AUT-001", "**Author**") in rules
+    assert ("AUT-001", "**Owner**") in rules
+
+
+def test_table_format_allowlist_clean(tmp_path, monkeypatch):
+    """Table-format allowlisted values produce no findings (the live shape
+    of CR-CATALOG-STRUCT-06/07)."""
+    _make_tree(
+        tmp_path,
+        "# CR-TEST: clean\n\n"
+        "| Field | Value |\n|---|---|\n"
+        "| **Status** | Merged (PR #6) |\n"
+        "| **Author** | Emmanuel A. Otchere |\n",
+    )
+    r = _evaluate_on(tmp_path, monkeypatch)
+    assert r["verdict"] == "CONFORMANT"
+    assert r["summary"] == {"AUT-001": 0, "AUT-002": 0, "AUT-003": 0}
+
+
+def test_presence_rule_fires_when_no_authorship_field(tmp_path, monkeypatch):
+    """AUT-002 presence rule: a CR matching the glob that exposes no
+    registered authorship field at all fires (blocking)."""
+    _make_tree(
+        tmp_path,
+        "# CR-TEST: silent\n\n"
+        "| Field | Value |\n|---|---|\n"
+        "| **Status** | Proposed |\n"
+        "| **Layer** | L1 |\n",
+    )
+    r = _evaluate_on(tmp_path, monkeypatch)
+    assert r["verdict"] == "NON-CONFORMANT"
+    aut002 = [f for f in r["blocking"] if f["rule"] == "AUT-002"]
+    assert len(aut002) == 1
+    assert aut002[0]["file"] == "change-requests/CR-TEST.md"

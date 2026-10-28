@@ -31,18 +31,18 @@ Per the DEA Metamodel, `actors:Actor` is the abstract kernel; concrete instances
 
 | Level | id form |
 | :--- | :--- |
-| L1: Actor | `actors-<level>-<slug>-<hash6>` |
+| L1: Actor | `actors:actor-<slug>-<hash6>` |
 
 Each record file's id is content-addressed: changing the file's contents (without renaming the file) changes its hash. This is what makes the catalog content-addressed rather than directory-addressed.
 
 ### Canonical YAML Shape (illustrative; first admission will finalize)
 
 ```yaml
-# id pattern: actors-<level>-<slug>-<hash6>
-id: actors-<level>-example-slug-xxxxxx
+# id pattern: actors:actor-<slug>-<hash6>
+id: actors:actor-example-slug-xxxxxx
 name: Example Actor
 definition: >
-  The illustrative definition for a Actor record.
+  The illustrative definition for an Actor record.
 related_records:
   - <other-namespace>:<other-level>-...-xxxxxx
 ```
@@ -70,29 +70,30 @@ This catalog is protected by an automated CI pipeline with the following gates. 
    Validates every record file against `schemas/entity.schema.json` and the cell-charter contract.
    *Why it matters:* Catches malformed records and structural drift before they reach the catalog. Currently in early-exit mode (empty tree).
 
-2. **ECF Conformance Consumer** (where applicable)
-   Validates that `domain` and ECF coordinate references match the canonical ECF Domain Enum (current: v2.4.x).
-   *Why it matters:* Prevents taxonomy drift across the seven catalog repositories.
-
-3. **Catalog Conformance Suite** (CST, layout-agnostic, from `dea-metaframework/tools/conformance_test_catalog_structure.py`)
+2. **Catalog Conformance Suite** (CST, layout-agnostic, from `dea-metaframework/tools/conformance_test_catalog_structure.py`, checkout pinned `v2.6.0`)
    Runs the 16-test CST suite that checks id-pattern conformance, content-derived hash correctness, and the flat-layout invariants.
    *Why it matters:* Enforces the org-wide id-system contract across all 7 catalog repositories.
 
-4. **ID System Gate** (`scripts/check_id_system.py`)
+3. **ID System Gate** (`scripts/check_id_system.py`)
    Runs IDM-001..007 (catalog-wide) plus IDM-008 (PR-scoped coherence via `id-system-coherence-report.md` artifact).
    *Why it matters:* Catches id drift between branches and the canonical baseline before merge.
 
-5. **Register Audit Gate** (`scripts/check_register_audit.py`)
-   Walks the catalog register and confirms every record's `audit_status: landed` vs `pending`.
-   *Why it matters:* Keeps the catalog register honest as a single source of truth.
+4. **Authorship Cardinal Rule gate** (`scripts/check_authorship.py`, `validate-authorship.yml`)
+   Enforces AUT-001..003 over the registered authorship-bearing fields (both CR metadata shapes).
+   *Why it matters:* Keeps agent/tool names out of authorship fields (CR-BP-118 as propagated by CR-ACT-01).
 
-6. **CR Metadata Gate** (`scripts/check_cr_metadata.py --strict`)
-   Verifies that any structural change, new admission, or migration is explicitly tied to an approved Change Request (CR) markdown file in `change-requests/`.
-   *Why it matters:* Enforces the "no undocumented mutations" rule. Every change must have an auditable governance trail.
+5. **Entity System gate** (`scripts/check_entity_system.py`, `validate-entity-system.yml`)
+   Runs the 5-rule umbrella gate (ES-001..005) under `--strict`, data-driven from `reconciliation/entity-system-registry.yaml`.
+   *Why it matters:* Keeps the id/relationship/lifecycle contract honest once records exist. Vacuously CONFORMANT while the tree is empty.
 
-7. **`allocate / validate`** (CI job)
-   Generates a per-record allocation matrix and validates it against the catalog register.
-   *Why it matters:* Detects orphan or duplicated records that escape the schema-level checks.
+6. **Allocation pin** (`validate-allocation.yml`)
+   Validates `metamodel-pointer.yaml` against the OpenDEAM root model (`dea-architecture-framework@v0.2.1`).
+   *Why it matters:* Detects entity-mapping drift between this catalog and the root model.
+
+7. **Catalog index + test suite** (`scripts/regenerate_catalog.py --check`, `scripts/check_catalog_index.py`, `pytest tests/`)
+   Keeps `CATALOG.yaml` truthful (counts, states, paths) and runs the gate unit tests on every PR.
+
+Not yet adopted in this repo (tracked for Phase 2 with the first admissions, do not assume they exist): a register-audit gate (`check_register_audit.py`), a CR-metadata gate (`check_cr_metadata.py`), an allocation-matrix CI job, `reconciliation/inventory.yaml`, and baseline snapshots. This catalog is not ECF-coordinated; no ECF conformance consumer applies (unlike the capabilities/processes catalogs).
 
 ---
 
@@ -101,11 +102,11 @@ This catalog is protected by an automated CI pipeline with the following gates. 
 This directory is the source of truth for the repository's reconciliation artifacts under `reconciliation/`:
 
 * **`CATALOG.yaml`** (repo root): Automatically refreshed to reflect the current state of all entities in this tree. The CI gate runs `scripts/regenerate_catalog.py --check` and fails on any drift. Currently emits an empty (zero-entity) catalog.
-* **`reconciliation/inventory.yaml`**: Flat inventory of every entity, indexed by id.
-* **`reconciliation/baseline/v1.yaml`**: Byte-identical, round-trip verifiable snapshot of the catalog at the last accepted baseline.
-* **`reconciliation/conformance_report.yaml`**: Last CST run output (16 CSTs, 0 warnings at HEAD).
+* **`reconciliation/authorship-fields.yaml`**: The authorship-field registry the AUT gate reads (CR-level to extend).
+* **`reconciliation/entity-system-registry.yaml`**: The entity-system registry the ES gate reads (canonical id form, relationships, lifecycle, per-type gates, exceptions).
+* **`reconciliation/migration-id-map.yaml`**: Declared by the entity-system registry for the legacy `dea:*` sweep; created when the first admission or the T8 follow-on needs it.
 
-When modifying this directory, contributors must run the reconciliation build scripts to ensure the baseline remains consistent with the committed tree. CI enforces this.
+When modifying this directory, contributors must run `scripts/regenerate_catalog.py` and re-run the gates (`check_id_system.py --strict`, the CST suite, `pytest tests/`) so the committed tree stays consistent. CI enforces this.
 
 ---
 
@@ -119,9 +120,11 @@ This catalog is one of seven in the DEA ecosystem. Records reference other catal
 | `orgunits:` | `technehub-labs/dea-catalog-organizational-units` | Wave 3 scaffold |
 | `objects:` | `technehub-labs/dea-catalog-business-objects` | Wave 3 scaffold |
 | `stakeholders:` | `technehub-labs/dea-catalog-stakeholders` | Wave 3 scaffold |
-| `capabilities:` | `technehub-labs/dea-catalog-business-capabilities` | Populated (31 records, Wave 2) |
-| `services:` | `technehub-labs/dea-catalog-business-services` | Populated (18 records, Wave 2b) |
-| `processes:` | `technehub-labs/dea-catalog-business-processes` | Populated (3,598 records) |
+| `capabilities:` | `technehub-labs/dea-catalog-business-capabilities` | Populated (see its `CATALOG.yaml`) |
+| `services:` | `technehub-labs/dea-catalog-business-services` | Populated (see its `CATALOG.yaml`) |
+| `processes:` | `technehub-labs/dea-catalog-business-processes` | Populated (see its `CATALOG.yaml`) |
+
+(Per-catalog counts live in each repo's generated `CATALOG.yaml` — hardcoded numbers here rot; the values this table previously carried were already stale.)
 
 This catalog has secondary references to the `dea:catalog-*` self-identity records, which remain in the legacy form on purpose.
 

@@ -16,7 +16,7 @@ any published artifact.
 
 - `**Owner**` in CR doc headers (`change-requests/CR-*.md`)
 - `**Author**` in CR doc headers
-- `audit.author` in entity record YAML (`entities/v1-alpha/**/processes-*.yaml`)
+- `audit.author` in entity record YAML (`entities/v1-alpha/**/actors-*.yaml`; registering the field is part of the first-admission CR, per the registry header)
 - `authors[].name`, `authors[].given-names`, `authors[].family-names` in
   `CITATION.cff`
 
@@ -38,7 +38,8 @@ CR chain; it is not a named role in the published artifact.
 
 ## How the rules are enforced
 
-`scripts/check_authorship.py` (gate [32] in the rollup, blocking) enforces
+`scripts/check_authorship.py` (blocking; runs `--strict` in
+`validate-authorship.yml`) enforces
 R1 mechanically. The gate is data-driven from
 `reconciliation/authorship-fields.yaml`; adding a new authorship-bearing
 field to the registry is itself a CR-level change, not a gate-level

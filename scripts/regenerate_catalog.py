@@ -86,6 +86,34 @@ ENTITY_ID_PATTERN = re.compile(
     r"|orgunit|object|service|stakeholder)-[a-z0-9-]+-[a-z2-9]{6})$"
 )
 
+# Terminal CR statuses: the org-consistent closed set, as landed in
+# dea-catalog-business-capabilities PR #91 / CR-DEA-BC-38 (itself a superset
+# of the CR-BP-114 set ratified in dea-catalog-processes).
+CLOSED_CR_STATUSES = frozenset(
+    {"Merged", "Landed", "Applied", "Accepted", "Rejected", "Superseded", "Withdrawn"}
+)
+
+# CR metadata shapes this repo's CRs use (CR-CATALOG-STRUCT-08): bold-line
+# (``**Status**: X``) and table (``| **Status** | X |``).
+_STATUS_LINE_RE = re.compile(r"^\*\*Status\*\*:\s*(.+)$")
+_STATUS_TABLE_RE = re.compile(r"^\|\s*\*\*Status\*\*\s*\|\s*(.+?)\s*\|$")
+
+
+def _cr_status_token(head: str) -> str | None:
+    """First Status value in a CR head as a bare token, or None.
+
+    Accepts both house metadata shapes, stripping trailing context such
+    as ``(PR #6)``. First status line wins: a carrier CR that *quotes* a
+    status line in its body must not be misparsed by it (the
+    CR-CATALOG-STRUCT-08 self-reference case).
+    """
+    for line in head.splitlines():
+        s = line.strip()
+        m = _STATUS_LINE_RE.match(s) or _STATUS_TABLE_RE.match(s)
+        if m:
+            return re.split(r"[;(,]", m.group(1))[0].strip()
+    return None
+
 
 def load_schema(schema_path: Path) -> dict[str, Any]:
     with schema_path.open("r", encoding="utf-8") as fh:
@@ -178,7 +206,14 @@ def build_catalog_metadata(
         "name": pointer.get("name", catalog_root.resolve().name),
         "abbreviation": pointer.get("abbreviation", catalog_root.resolve().name[:4].upper()),
         "version": str(pointer.get("version", "0.0.0")),
-        "status": pointer.get("status", "active"),
+        # CR-CATALOG-STRUCT-10: prefer the top-level `status`, then the
+        # pointer's own generated `conformance_status` (schema-legal:
+        # the index schema's status enum is active/draft/deprecated/
+        # retired, so a nested `catalog.status: scaffold` must not flow
+        # through verbatim), else "active".
+        "status": pointer.get("status")
+        or pointer.get("conformance_status")
+        or "active",
         "metamodel_version": str(pointer.get("metamodel_version", "unknown")),
         "description": str(pointer.get("description", "")),
         "repository": detect_repository_url(catalog_root),
@@ -497,11 +532,11 @@ def build_research_registers(entities: list[dict[str, Any]], catalog_root: Path)
 
 
 def count_open_change_requests(catalog_root: Path) -> int:
-    """Count CR-*.md files in change-requests/ whose status is not 'Merged'.
+    """Count CR-*.md files in change-requests/ whose status is not terminal.
 
-    Heuristic: look for the word 'Merged' on the line immediately following
-    the '# CR-...' heading. Files without a status line are conservatively
-    counted as open.
+    Parses the first Status line in the file head (first 30 lines); both
+    metadata shapes parse (CR-CATALOG-STRUCT-08). Files without a parsable
+    status are conservatively counted as open.
     """
     cr_dir = catalog_root / "change-requests"
     if not cr_dir.is_dir():
@@ -513,18 +548,11 @@ def count_open_change_requests(catalog_root: Path) -> int:
         except OSError:
             open_count += 1
             continue
-        # Take the first 30 lines; look for a status line.
         head = "\n".join(text.splitlines()[:30])
-        if "Status**: Merged" in head or "Status**: Merged" in head:
+        token = _cr_status_token(head)
+        if token is not None and token in CLOSED_CR_STATUSES:
             continue
-        if "Status**: Proposed" in head or "Status**: Draft" in head:
-            open_count += 1
-            continue
-        if "Status**:" in head:
-            # Some other status (Accepted, Superseded, etc.): conservative: open.
-            open_count += 1
-            continue
-        # No status line found: conservative open.
+        # Proposed, Draft, unknown token, or no status line: conservative open.
         open_count += 1
     return open_count
 

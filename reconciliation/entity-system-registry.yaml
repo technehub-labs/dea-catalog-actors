@@ -13,10 +13,13 @@ envelope:
   profiles: {}
 
 # ES-001: Identity
+# Canonical = the org-wide form this repo's own IDM gate enforces
+# (check_id_system.py IDM-001); the pre-migration `dea:` family is legacy
+# (CR-ACT-05 aligned the two gates; they previously disagreed).
 identity:
   id_field: id
-  canonical_prefix: "dea:"
-  canonical_pattern: "^dea:actor-[a-z0-9-]+$"
+  canonical_prefix: "actors:"
+  canonical_pattern: "^actors:actor-[a-z0-9-]+-[a-z2-9]{6}$"
   legacy_prefix: "dea:"
   legacy_pattern: "^dea:actor-[a-z0-9-]+$"
   legacy_migration_map: "reconciliation/migration-id-map.yaml"

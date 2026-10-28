@@ -15,18 +15,24 @@ on:
 jobs:
   catalog-conformance:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Install dependencies
-        run: pip install pyyaml jsonschema pytest
+        run: pip install pyyaml==6.0.3 jsonschema==4.26.0 pytest==9.1.1
 
       - name: Fetch catalog index machinery from dea-metaframework (if not vendored)
         uses: actions/checkout@v4
         with:
           repository: technehub-labs/dea-metaframework
+          ref: v2.6.0
           path: .metaframework
 
       - name: Install regenerator + gate + schema (prefer vendored copies)
@@ -54,7 +60,10 @@ jobs:
 
       - name: Run cross-repo conformance suite (CR-CATALOG-STRUCT-01 §11)
         run: |
-          python .metaframework/tools/conformance_test_catalog_structure.py               --catalog-root .               --template-root .metaframework/tools/catalog-repo-template               --strict
+          python .metaframework/tools/conformance_test_catalog_structure.py \
+              --catalog-root . \
+              --template-root .metaframework/tools/catalog-repo-template \
+              --strict
 
       - name: Run ID System gate (IDM-001..007)
         run: python scripts/check_id_system.py --strict
@@ -62,7 +71,11 @@ jobs:
       - name: Run ID System coherence gate (IDM-008, PR-scoped)
         run: |
           git fetch origin main --depth=1 || true
-          python scripts/check_id_system.py --base-ref origin/main               --report-path id-system-coherence-report.md
+          python scripts/check_id_system.py --base-ref origin/main \
+              --report-path id-system-coherence-report.md
+
+      - name: Run test suite
+        run: python -m pytest tests/ -q
 
       - name: Upload ID System coherence report
         uses: actions/upload-artifact@v4
